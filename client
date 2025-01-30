@@ -1,0 +1,83 @@
+import sys
+import time
+from xmlrpc.client import ServerProxy
+
+def main():
+    if len(sys.argv) < 3:
+        print("Usage: python client.py <room_name> <username>")
+        sys.exit(1)
+
+    room_name = sys.argv[1]
+    username = sys.argv[2]
+
+    # Connect to the XML-RPC server
+    server = ServerProxy("http://localhost:8000/RPC2", allow_none=True)
+
+    # Ensure the chat room exists
+    rooms = server.list_rooms()
+    if room_name not in rooms:
+        print(f"Chat room '{room_name}' does not exist. Creating it...")
+        server.create_room(room_name)
+
+    # Attempt to connect to the chat room
+    connected = server.connect(room_name, username)
+    if not connected:
+        print(f"Could not connect. User '{username}' is already in the chat room '{room_name}'.")
+        sys.exit(1)
+    else:
+        print(f"Connected to chat room '{room_name}' as '{username}'.")
+
+    try:
+        while True:
+            # Poll for new messages
+            messages = server.get_messages(room_name)
+            print(f"\n=== Chat History for {room_name} ===")
+            for msg in messages:
+                print(msg)
+            print("===================================\n")
+
+            # Display user commands
+            print("Available commands:")
+            print("  /say <message>      Send a message")
+            print("  /who                List participants")
+            print("  /leave              Leave the chat")
+            print("  /rooms              List available chat rooms")
+            print("  (Or just press Enter to refresh)")
+
+            user_input = input("Enter command: ").strip()
+
+            # If nothing is entered, just refresh
+            if not user_input:
+                continue
+
+            if user_input.startswith("/say "):
+                # Extract the message after "/say "
+                _, message = user_input.split(" ", 1)
+                server.say(room_name, username, message)
+
+            elif user_input == "/who":
+                participants = server.who(room_name)
+                print(f"Currently in '{room_name}':", ", ".join(participants))
+
+            elif user_input == "/rooms":
+                rooms = server.list_rooms()
+                print("Available chat rooms:", ", ".join(rooms))
+
+            elif user_input == "/leave":
+                server.leave(room_name, username)
+                print(f"You have left '{room_name}'. Exiting.")
+                break
+
+            else:
+                print("Unknown command.")
+
+            # Short delay before the next refresh
+            time.sleep(1)
+
+    except KeyboardInterrupt:
+        # Gracefully handle CTRL+C
+        server.leave(room_name, username)
+        print(f"\nExiting '{room_name}' chat...")
+
+if __name__ == "__main__":
+    main()
