@@ -1,0 +1,43 @@
+def show_interface():
+    """
+    Display documentation for all available chat server methods.
+    """
+    print("\n===================================")
+    print("Chat Server Methods Documentation")
+    print("===================================\n")
+
+    methods = {
+        "connect(chat_room, participant_name)": 
+            "Joins a participant to a specified chat room. "
+            "If the room does not exist, it will be created.",
+        
+        "leave(chat_room, participant_name)": 
+            "Removes a participant from a chat room. "
+            "If the room becomes empty, it will be deleted.",
+        
+        "say(chat_room, participant_name, message)": 
+            "Sends a message to all participants in the chat room. "
+            "Messages are stored for later retrieval.",
+        
+        "send_private_message(sender, recipient, message)": 
+            "Sends a private message to a specific participant. "
+            "Both sender and recipient can view the message later.",
+        
+        "get_messages(participant_name, chat_room)": 
+            "Retrieves all messages in a specified chat room "
+            "for the requesting participant.",
+        
+        "get_private_messages(participant_name)": 
+            "Retrieves all private messages sent or received "
+            "by the participant.",
+        
+        "who(chat_room)": 
+            "Lists all participants currently in the specified chat room."
+    }
+
+    for method, description in methods.items():
+        print(f"🔹 {method}\n   ➡ {description}\n")
+
+
+if __name__ == "__main__":
+    show_interface()
