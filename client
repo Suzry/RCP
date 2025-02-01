@@ -1,8 +1,12 @@
 import sys
 import time
 from xmlrpc.client import ServerProxy
+from interface1 import show_interface 
 
 def main():
+    
+    show_interface()
+
     if len(sys.argv) < 3:
         print("Usage: python client.py <room_name> <username>")
         sys.exit(1)
