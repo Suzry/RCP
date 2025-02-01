@@ -4,21 +4,14 @@ from typing import Dict, Set, List
 
 
 class RequestHandler(SimpleXMLRPCRequestHandler):
-    # Restrict to a particular path to mitigate some security concerns
     rpc_paths = ("/RPC2",)
 
 
 class ChatServer:
     def __init__(self):
-        # Dictionary to manage multiple chat rooms
-        # Format: {"room_name": {"participants": set(), "messages": list()}}
         self.chat_rooms: Dict[str, Dict[str, Set | List]] = {}
 
     def create_room(self, room_name: str) -> bool:
-        """
-        Creates a new chat room if it does not exist.
-        Returns True if successfully created, False if already exists.
-        """
         if room_name in self.chat_rooms:
             return False
         self.chat_rooms[room_name] = {"participants": set(), "messages": []}
@@ -26,10 +19,6 @@ class ChatServer:
         return True
 
     def connect(self, room_name: str, user_name: str) -> bool:
-        """
-        Allows a user to join a chat room.
-        Returns True if successful, False if the user is already in the room.
-        """
         if room_name not in self.chat_rooms:
             return False
         if user_name in self.chat_rooms[room_name]["participants"]:
@@ -41,10 +30,6 @@ class ChatServer:
         return True
 
     def leave(self, room_name: str, user_name: str) -> bool:
-        """
-        Allows a user to leave a chat room.
-        Returns True if successful, False if the user is not in the room.
-        """
         if room_name not in self.chat_rooms or user_name not in self.chat_rooms[room_name]["participants"]:
             return False
         self.chat_rooms[room_name]["participants"].remove(user_name)
@@ -54,10 +39,6 @@ class ChatServer:
         return True
 
     def say(self, room_name: str, user_name: str, message: str) -> bool:
-        """
-        Broadcasts a message from the user in the specified chat room.
-        Returns True if the message is sent, False if the user is not in the room.
-        """
         if room_name not in self.chat_rooms or user_name not in self.chat_rooms[room_name]["participants"]:
             return False
         full_message = f"{user_name}: {message}"
@@ -66,25 +47,16 @@ class ChatServer:
         return True
 
     def who(self, room_name: str) -> List[str]:
-        """
-        Returns a list of participants in the specified chat room.
-        """
         if room_name not in self.chat_rooms:
             return []
         return list(self.chat_rooms[room_name]["participants"])
 
     def get_messages(self, room_name: str) -> List[str]:
-        """
-        Returns the chat history of the specified chat room.
-        """
         if room_name not in self.chat_rooms:
             return []
         return self.chat_rooms[room_name]["messages"]
 
     def list_rooms(self) -> List[str]:
-        """
-        Returns a list of all available chat rooms.
-        """
         return list(self.chat_rooms.keys())
 
 
